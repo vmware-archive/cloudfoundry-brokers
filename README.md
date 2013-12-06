@@ -1,8 +1,8 @@
 <strong>Steps to register Service Broker (Gemfire version) with CloudFoundry</strong>
 <ol>
-<li>Edit the values <pre>src/main/resources/application.properties</pre> to reflect your gemfire install directory</li>
-<li>Start the <pre>JavaServiceBrokerApplication</pre> Spring Boot Application with the following java property:
-<code>spring.profiles.active=gemfire</code>
+<li>Edit the values <code>src/main/resources/application.properties</code> to reflect your gemfire install directory</li>
+<li>Start the <code>JavaServiceBrokerApplication</code> Spring Boot Application with the following java property:
+<pre>spring.profiles.active=gemfire</pre>
 </li>
 <li>next step</li>
 <li>To flip flag on a service plan to be public:
