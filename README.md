@@ -7,17 +7,17 @@
 <li>Register service broker with CloudFoundry using cf add-service-broker.  Make sure your URL/IP for your broker is resolvable by your CloudFoundry env.<br>
 Sample output: 
 <pre>$ cf add-service-broker gemfire
-<br><br>
+
 URL> http://10.0.0.13:8080<br>
 Username> admin
 Password> admin
-<br>
+
 Adding service broker gemfire... OK
-<br><br>
+
 $ cf service-brokers
-<br>
+
 Getting service brokers... OK
-<br>
+
 Name      URL                  
 gemfire   http://10.0.0.13:8080</pre>
 </li>
