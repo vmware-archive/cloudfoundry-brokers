@@ -8,19 +8,17 @@
 Sample output: 
 <pre>$ cf add-service-broker gemfire
 <br><br>
-URL> http://10.0.0.13:8080
-<br><br>
+URL> http://10.0.0.13:8080<br>
 Username> admin
-<br><br>
 Password> admin
-<br><br>
+<br>
 Adding service broker gemfire... OK
 <br><br>
 $ cf service-brokers
-<br><br>
+<br>
 Getting service brokers... OK
-<br><br>
-Name      URL<br>                  
+<br>
+Name      URL                  
 gemfire   http://10.0.0.13:8080</pre>
 </li>
 <li>To flip flag on a service plan to be public:<br>
