@@ -6,15 +6,15 @@
 </li>
 <li>next step</li>
 <li>To flip flag on a service plan to be public:
-<code>cf curl PUT /v2/service_plans/$GUID -b '{"public":true}'</code>
+<pre>cf curl PUT /v2/service_plans/$GUID -b '{"public":true}'</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans
-
-Helpful CF Web service calls:
+<br>
+Helpful CF Web service calls:<br>
 To get list of service plans:
-cf curl GET /v2/service_plans
+<pre>cf curl GET /v2/service_plans</pre>
 
 To get the instances provisioned by this service:
-cf curl GET /v2/service_plans/$GUID/service_instances
+<pre>cf curl GET /v2/service_plans/$GUID/service_instances</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans
 </li>
 <li>create service</li>
