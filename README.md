@@ -66,7 +66,40 @@ To get the instances provisioned by this service:
 <pre>cf curl GET /v2/service_plans/$GUID/service_instances</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans
 </li>
-<li>create service</li>
-<li>next step...</li>
+<li>Create a service instance of Gemfire using <code>cf create-service</code>
+<pre>
+$ cf create-service
+
+1: p-gemfire , via 
+2: user-provided , via 
+What kind?> 1
+
+Name?> p-gemfire-f076a
+
+1: 1GB-replicated: Multi-tenant Gemfire service; 1GB data storage replicated
+Which plan?> 1
+
+Creating service p-gemfire-f076a... OK
+</pre>
+At this point you will have a single Gemfire JVM associated with the unique service instance ID within your <code>$gemfire.data</code> directory:
+<pre>
+$ ls -l
+total 120
+-rw-r--r--@  1 azwickey  staff  31830 Mar  4  2013 EULA.txt
+drwxr-xr-x@  9 azwickey  staff    306 Mar  4  2013 SampleCode
+drwxr-xr-x   5 azwickey  staff    170 Dec  6 16:53 a082873a-6691-4ec9-bc17-f0d45fce1fba      *** This is the Gemfire server **
+-rw-r--r--   1 azwickey  staff  15127 Dec  6 16:53 a082873a-6691-4ec9-bc17-f0d45fce1fba.log  *** This is the log file for the Gemfire server **
+drwxr-xr-x@ 10 azwickey  staff    340 Mar  4  2013 bin
+-rw-r--r--   1 azwickey  staff    200 Dec  6 16:53 cf_service.out
+drwxr-xr-x@  4 azwickey  staff    136 Mar  4  2013 defaultConfigs
+drwxr-xr-x@  9 azwickey  staff    306 Mar  4  2013 docs
+drwxr-xr-x@ 17 azwickey  staff    578 Mar  4  2013 dtd
+-rw-r--r--   1 azwickey  staff   7108 Dec  6 16:53 gfsh-2013-12-06_16-53-14.log
+drwxr-xr-x@ 34 azwickey  staff   1156 Mar  4  2013 lib
+drwxr-xr-x@  3 azwickey  staff    102 Mar  4  2013 templates
+drwxr-xr-x@  7 azwickey  staff    238 Mar  4  2013 tools
+</pre>
+</li>
+<li>next steps to be added once broker is more functional...</li>
 </ol>
 
