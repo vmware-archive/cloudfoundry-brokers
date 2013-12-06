@@ -8,7 +8,7 @@
 <li>To flip flag on a service plan to be public:
 <pre>cf curl PUT /v2/service_plans/$GUID -b '{"public":true}'</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans
-<br>
+<br><br>
 Helpful CF Web service calls:<br>
 To get list of service plans:
 <pre>cf curl GET /v2/service_plans</pre>
