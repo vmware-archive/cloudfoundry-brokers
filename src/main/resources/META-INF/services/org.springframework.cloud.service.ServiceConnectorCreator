@@ -1,0 +1,2 @@
+com.pivotal.cloudfoundry.service.springcloud.sqlfire.SqlFireDataSourceCreator
+com.pivotal.cloudfoundry.service.springcloud.redis.UPSRedisConnectionFactoryCreator

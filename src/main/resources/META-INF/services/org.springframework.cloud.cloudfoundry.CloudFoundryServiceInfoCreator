@@ -1,0 +1,2 @@
+com.pivotal.cloudfoundry.service.springcloud.sqlfire.SqlFireServiceInfoCreator
+com.pivotal.cloudfoundry.service.springcloud.redis.UPSRedisServiceInfoCreator
