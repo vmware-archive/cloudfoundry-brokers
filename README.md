@@ -22,7 +22,7 @@ Name      URL
 gemfire   http://10.0.0.13:8080</pre>
 </li>
 <li>To flip flag on a service plan to be public:<br>
-note: this is required.  Without it you will not be able to create an instance of this service
+note: this is required.  Without it you will not be able to create an instance of this service.  Also, make sure you've logged in using <code>cf login</code> recently as your auth token is only cached for 10 minutes
 <pre>cf curl PUT /v2/service_plans/$GUID -b '{"public":true}'</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans API invocation
 <br><br>
