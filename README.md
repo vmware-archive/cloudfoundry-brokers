@@ -41,7 +41,7 @@ $ cf curl GET /v2/service_plans
   "resources": [
     {
       "metadata": {
-        "guid": "0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",   \<---- ** This is the value to use **
+        "guid": "0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",    **** This is the value to use ****
         "url": "/v2/service_plans/0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",
         "created_at": "2013-12-06T21:38:38+00:00",
         "updated_at": null
