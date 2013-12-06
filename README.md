@@ -5,7 +5,7 @@
 <pre>spring.profiles.active=gemfire</pre>
 </li>
 <li>Register service broker with CloudFoundry using cf add-service-broker.  Make sure your URL/IP for your broker is resolvable by your CloudFoundry env.<br>
-Sample output: 
+Sample output: <br>
 <pre>$ cf add-service-broker gemfire
 
 URL> http://10.0.0.13:8080<br>
@@ -29,13 +29,9 @@ note: this is required.  Without it you will not be able to create an instance o
 Helpful CF Web service calls:<br>
 To get list of service plans:
 <pre>cf curl GET /v2/service_plans
-<br><br>
-Example:<br><br>
-$ cf curl GET /v2/service_plans
-Failed to load admin-cf-plugin:
-  Unable to activate admin-cf-plugin-3.0.0, because cfoundry-4.6.1 conflicts with cfoundry (< 3.0, >= 2.1.0)
 
-You may need to update or remove this plugin.
+Example:
+$ cf curl GET /v2/service_plans
 
 {
   "total_results": 1,
@@ -45,7 +41,7 @@ You may need to update or remove this plugin.
   "resources": [
     {
       "metadata": {
-        "guid": "0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",
+        "guid": "0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",   <---- ** This is the value to use **
         "url": "/v2/service_plans/0a1d21f7-6c91-49bd-ab8b-43198ac0f65b",
         "created_at": "2013-12-06T21:38:38+00:00",
         "updated_at": null
