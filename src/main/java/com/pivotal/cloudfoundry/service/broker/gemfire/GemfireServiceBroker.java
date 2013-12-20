@@ -1,14 +1,16 @@
 package com.pivotal.cloudfoundry.service.broker.gemfire;
 
-import java.io.File;
-import java.lang.ProcessBuilder.Redirect;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.gemfire.GemfireTemplate;
+import org.springframework.data.gemfire.function.execution.GemfireOnServersFunctionTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,16 +30,17 @@ import com.pivotal.cloudfoundry.service.broker.ServiceBindResponseModel;
 import com.pivotal.cloudfoundry.service.broker.ServiceInstanceModel;
 import com.pivotal.cloudfoundry.service.broker.ServiceProvisionModel;
 
-@Profile("gemfire")
+@Profile({"gemfire-service-broker"})
 @Controller()
 @RequestMapping("/v2")
+@Configuration
+@ImportResource("classpath:spring-gemfire-client.xml")
 public class GemfireServiceBroker implements IServiceBroker {
 	
-	private static Logger LOG = LoggerFactory.getLogger(GemfireServiceBroker.class);
+	private static Logger LOG = LoggerFactory.getLogger(GemfireServiceBroker.class);	
 	
-	@Value("${gemfire.data}") private String _gfDataDir;	
-	@Value("${gemfire.home}") private String _gfHome;
-	
+	@Autowired private GemfireOnServersFunctionTemplate _functionTemplate;
+	@Autowired private GemfireTemplate _template;
    
 	@RequestMapping(value="/catalog", method=RequestMethod.GET)
     public @ResponseBody ServiceProvisionModel serviceCatalog() {
@@ -49,7 +52,7 @@ public class GemfireServiceBroker implements IServiceBroker {
     	service.addTag("gemfire");
     	service.addTag("nosql");
     	
-    	//TODO: somehow externalize these.. probably investigate YAML
+    	//TODO: somehow externalize these.. probably stick into Gemfire
     	//Specific Plans
     	IPlan plan = new CloudFoundryPlan("4618z98-ab16-3t22-ba6e-1f258d3addz2","1GB-replicated","Multi-tenant Gemfire service; 1GB data storage replicated");
     	plan.addMetadata("cost", "free");
@@ -66,54 +69,12 @@ public class GemfireServiceBroker implements IServiceBroker {
     	LOG.info("Provisioning Gemfire service instance [id:" + id + "]");
     	
     	ServiceInstanceModel model = ServiceInstanceModel.build(data);
-
-    	String dataDir = _gfDataDir + File.separator + id;
     	
-    	//make server dir for the process
-    	File f = new File(dataDir);
-    	if(f.mkdir()) {
-    		LOG.info("Successfully created data dir for instance [" + f.getPath() + "]");
-    	} else {
-    		LOG.info("Something went wrong!!");
-    	}
+    	_functionTemplate.execute("provision", id);
+    	LOG.info("Created gemfire region: " + id);
     	
-//    	NAME
-//        start server
-//    SYNOPSIS
-//        Start a GemFire Cache Server.
-//    SYNTAX
-//        gfsh start server --name=value [--assign-buckets(=value)?] [--cache-xml-file=value] [--classpath=value]
-//        [--disable-default-server(=value)?] [--disable-exit-when-out-of-memory(=value)?] [--enable-time-statistics(=value)?] [--force(=value)?]
-//        [--properties-file=value] [--security-properties-file=value] [--group=value] [--license-application-cache=value]
-//        [--license-data-management=value] [--locators=value] [--log-level=value] [--mcast-address=value] [--mcast-port=value]
-//        [--memcached-port=value] [--memcached-protocol=value] [--rebalance(=value)?] [--server-bind-address=value] [--server-port=value]
-//        [--statistic-archive-file=value] [--dir=value] [--initial-heap=value] [--max-heap=value] [--J=value(,value)*]    	
-    	
-    	//start GF process
-    	ProcessBuilder pb = new ProcessBuilder("bin/gfsh", "start", "server", "--name=" + dataDir);
-    	//pb.environment().put("TEST", "VALUE");
-    	pb.directory(new File(_gfHome));
-    	File log = new File(_gfHome + "/cf_service.out");
-    	pb.redirectErrorStream(true);
-    	pb.redirectOutput(Redirect.appendTo(log));
-    	
-    	
-    	try {
-    		Process p = pb.start();
-       	 	assert pb.redirectInput() == Redirect.PIPE;
-       	 	assert pb.redirectOutput().file() == log;
-       	 	assert p.getInputStream().read() == -1;
-    		
-    	} catch(Exception ex) {
-    		ex.printStackTrace();
-    		throw new RuntimeException("ERROR!!!");
-    	}
-    	
-    	
-    	//create region
-    	
-    	//add entry into main datastore for tracking
-    	
+    	//place info about this region in admin info
+    	_template.put(id, model);
     	
     	return new HashMap<String, String>() {{ put("dashboard_url", "http://localhost:8080/pulse"); }};
     }
@@ -127,31 +88,13 @@ public class GemfireServiceBroker implements IServiceBroker {
     		LOG.debug("plan_id: " + plan_id);
     	}
     	
-    	String dataDir = _gfDataDir + File.separator + id;
-    	
-    	//start GF process
-    	ProcessBuilder pb = new ProcessBuilder("../bin/gfsh", "stop", "server");
-    	//pb.environment().put("TEST", "VALUE");
-    	pb.directory(new File(dataDir));
-    	File log = new File(_gfHome + "/cf_service.out");
-    	pb.redirectErrorStream(true);
-    	pb.redirectOutput(Redirect.appendTo(log));
-    	
-    	
-    	try {
-    		Process p = pb.start();
-       	 	assert pb.redirectInput() == Redirect.PIPE;
-       	 	assert pb.redirectOutput().file() == log;
-       	 	assert p.getInputStream().read() == -1;
-    		
-    	} catch(Exception ex) {
-    		ex.printStackTrace();
-    		//throw new RuntimeException("ERROR!!!");
-    	}
-    	
-    	//Eventually this will have to have logic to determine if the service instance still exists
-    	if(!"testing".equals(id)) {
-    		return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
+    	if(_template.containsKeyOnServer(id)) {
+    		_functionTemplate.execute("deprovision", id);
+        	LOG.info("Destroyed gemfire region: " + id);
+        	
+        	_template.remove(id);
+        	
+        	return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
     	} else {
     		return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.NOT_FOUND);
     	}

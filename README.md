@@ -103,3 +103,6 @@ drwxr-xr-x@  7 azwickey  staff    238 Mar  4  2013 tools
 <li>next steps to be added once broker is more functional...</li>
 </ol>
 
+
+start locator --name=locator --force=true --mcast-port=0 --log-level=fine --properties-file=locator.properties
+start server --name=server1 --locators=10.0.0.13[10334] --cache-xml-file=server.xml --properties-file=gemfire.properties
