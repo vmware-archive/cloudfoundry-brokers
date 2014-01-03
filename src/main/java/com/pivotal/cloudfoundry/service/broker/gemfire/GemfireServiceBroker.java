@@ -1,15 +1,21 @@
 package com.pivotal.cloudfoundry.service.broker.gemfire;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.GemfireTemplate;
+import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.function.execution.GemfireOnServersFunctionTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +46,11 @@ public class GemfireServiceBroker implements IServiceBroker {
 	private static Logger LOG = LoggerFactory.getLogger(GemfireServiceBroker.class);	
 	
 	@Autowired private GemfireOnServersFunctionTemplate _functionTemplate;
-	@Autowired private GemfireTemplate _template;
+	@Autowired private PoolFactoryBean _pool;
+	@Resource(name="provisionTemplate") private GemfireTemplate _provisionTemplate;
+	@Resource(name="planTemplate") private GemfireTemplate _planTemplate;
+	@Resource(name="locatorHost") private String _locatorHost;
+	@Resource(name="locatorPort") private String _locatorPort;
    
 	@RequestMapping(value="/catalog", method=RequestMethod.GET)
     public @ResponseBody ServiceProvisionModel serviceCatalog() {
@@ -74,7 +84,7 @@ public class GemfireServiceBroker implements IServiceBroker {
     	LOG.info("Created gemfire region: " + id);
     	
     	//place info about this region in admin info
-    	_template.put(id, model);
+    	_provisionTemplate.put(id, model);
     	
     	return new HashMap<String, String>() {{ put("dashboard_url", "http://localhost:8080/pulse"); }};
     }
@@ -88,11 +98,11 @@ public class GemfireServiceBroker implements IServiceBroker {
     		LOG.debug("plan_id: " + plan_id);
     	}
     	
-    	if(_template.containsKeyOnServer(id)) {
+    	if(_provisionTemplate.containsKeyOnServer(id)) {
     		_functionTemplate.execute("deprovision", id);
         	LOG.info("Destroyed gemfire region: " + id);
         	
-        	_template.remove(id);
+        	_provisionTemplate.remove(id);
         	
         	return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
     	} else {
@@ -111,7 +121,10 @@ public class GemfireServiceBroker implements IServiceBroker {
     	
     	//Add any 'credentials' needed to access gemfire
     	ServiceBindResponseModel resp = new ServiceBindResponseModel();
-    	resp.addCredential("uri", "http://testing.com");
+    	
+    	resp.addCredential("host", _locatorHost);
+    	resp.addCredential("port", _locatorPort);
+    	resp.addCredential("parent-region", instance_id);
     	return resp;
     }
    

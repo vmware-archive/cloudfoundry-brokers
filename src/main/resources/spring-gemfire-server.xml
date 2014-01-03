@@ -12,9 +12,8 @@
     <gfe:cache properties-ref="props" />
                
     <util:properties id="props">
-    	<prop key="locators">10.0.0.9[10334]</prop>
-    	<prop key="bind-address">10.0.0.9</prop>
-    	<prop key="name">server1</prop>
+    	<prop key="locators">${locators:localhost[10334]}</prop>
+    	<prop key="name">${gemfire-name:gemfire-server}</prop>
     </util:properties>
     
     <bean id="functions" class="com.pivotal.cloudfoundry.service.broker.gemfire.GemfireFunctions"/>

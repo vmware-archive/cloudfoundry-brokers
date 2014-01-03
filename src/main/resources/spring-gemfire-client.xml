@@ -17,14 +17,24 @@
     </util:properties>
 
 	<gfe:pool id="gf-pool" subscription-enabled="true">
-		<gfe:locator host="10.0.0.9" port="10334"/>
+		<gfe:locator host="${locator.host}" port="${locator.port}"/>
 	</gfe:pool>
+	
+	<!-- This is needed because Spring boot isn't auto-wiring @Value properly for some reason... -->
+	<bean id="locatorHost" class="java.lang.String">
+  		<constructor-arg type="java.lang.String" value="${locator.host}"/>
+	</bean>
+	<bean id="locatorPort" class="java.lang.String">
+  		<constructor-arg type="java.lang.String" value="${locator.port}"/>
+	</bean>
+	
 	
 	<!-- Admin Regions used for Broker tracking tasks -->
 	<gfe:client-region id="plan" name="broker-plan" shortcut="PROXY" />
 	<gfe:client-region id="provision" name="broker-provision" shortcut="PROXY" />
 	
-	<bean id="gemfireTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="provision"/>
+	<bean id="provisionTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="provision"/>
+	<bean id="planTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="plan"/>
 	
 	<bean id="functionTemplate" class="org.springframework.data.gemfire.function.execution.GemfireOnServersFunctionTemplate">
 		<constructor-arg ref="gf-pool" />

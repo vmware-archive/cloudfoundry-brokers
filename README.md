@@ -1,14 +1,25 @@
-<strong>Steps to register Service Broker (Gemfire version) with CloudFoundry</strong>
+<strong>Steps to start and register Service Broker (Gemfire version) with CloudFoundry.  Note, steps 1 and 2 are only required if you are not using a bosh deployment of Gemfire and the Service Broker.  See [https://github.com/Pivotal-Field-Engineering/gemfire-bosh-release](https://github.com/Pivotal-Field-Engineering/gemfire-bosh-release). </strong>
 <ol>
-<li>Edit the values <code>src/main/resources/application.properties</code> to reflect your gemfire install directory</li>
+<li>The <code>JavaServiceBrokerApplication</code> requires a running gemfire cluster and at least one locator.  This project contains a Spring Data for Gemfire configuration and application harness.  This server configuration is required because it contains the required gemfire functions and regions for the service broker to operate.
+<ul>
+Start a gemfire locator.  For example, from GFSH: <pre>start locator --name=locator --force=true --mcast-port=0 --log-level=fine</pre>
+</ul>
+<ul>
+Start atleast one gemfire server by launching <code>com.pivotal.cloudfoundry.service.broker.gemfire.GemfireServer</code>.  You will need the following java properties:
+<pre>locators=$LOCATORHOST_PORT:  localhost[10334] is the default.  This is only required if you have a different host/port combo
+gemfire-name=$NAME:  the name of the gemfire server.  gemfire-server is the default
+spring.profiles.active=gemfire-server:  required to activate the appropriate spring profile and gemfire spring beams<br>
+</pre>
+</ul>
+</li>
 <li>Start the <code>JavaServiceBrokerApplication</code> Spring Boot Application with the following java property:
-<pre>spring.profiles.active=gemfire</pre>
+<pre>spring.profiles.active=gemfire-service-broker</pre>
 </li>
 <li>Register service broker with CloudFoundry using cf add-service-broker.  Make sure your URL/IP for your broker is resolvable by your CloudFoundry env.<br>
 Sample output: <br>
 <pre>$ cf add-service-broker gemfire
 
-URL> http://10.0.0.13:8080<br>
+URL> http://$BROKER_IP:$BROKER_PORT<br>
 Username> admin
 Password> admin
 
@@ -81,28 +92,5 @@ Which plan?> 1
 
 Creating service p-gemfire-f076a... OK
 </pre>
-At this point you will have a single Gemfire JVM associated with the unique service instance ID within your <code>$gemfire.data</code> directory:
-<pre>
-$ ls -l
-total 120
--rw-r--r--@  1 azwickey  staff  31830 Mar  4  2013 EULA.txt
-drwxr-xr-x@  9 azwickey  staff    306 Mar  4  2013 SampleCode
-drwxr-xr-x   5 azwickey  staff    170 Dec  6 16:53 a082873a-6691-4ec9-bc17-f0d45fce1fba      *** This is the Gemfire server **
--rw-r--r--   1 azwickey  staff  15127 Dec  6 16:53 a082873a-6691-4ec9-bc17-f0d45fce1fba.log  *** This is the log file for the Gemfire server **
-drwxr-xr-x@ 10 azwickey  staff    340 Mar  4  2013 bin
--rw-r--r--   1 azwickey  staff    200 Dec  6 16:53 cf_service.out
-drwxr-xr-x@  4 azwickey  staff    136 Mar  4  2013 defaultConfigs
-drwxr-xr-x@  9 azwickey  staff    306 Mar  4  2013 docs
-drwxr-xr-x@ 17 azwickey  staff    578 Mar  4  2013 dtd
--rw-r--r--   1 azwickey  staff   7108 Dec  6 16:53 gfsh-2013-12-06_16-53-14.log
-drwxr-xr-x@ 34 azwickey  staff   1156 Mar  4  2013 lib
-drwxr-xr-x@  3 azwickey  staff    102 Mar  4  2013 templates
-drwxr-xr-x@  7 azwickey  staff    238 Mar  4  2013 tools
-</pre>
 </li>
-<li>next steps to be added once broker is more functional...</li>
 </ol>
-
-
-start locator --name=locator --force=true --mcast-port=0 --log-level=fine --properties-file=locator.properties
-start server --name=server1 --locators=10.0.0.13[10334] --cache-xml-file=server.xml --properties-file=gemfire.properties

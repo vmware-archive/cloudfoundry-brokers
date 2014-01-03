@@ -41,7 +41,7 @@ public class GemfireFunctions {
 			Cache cache = CacheFactory.getAnyInstance();
 			Region r = cache.getRegion(region);
 			r.destroyRegion();
-			System.out.println("Region created...");
+			System.out.println("Region destroyed...");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
