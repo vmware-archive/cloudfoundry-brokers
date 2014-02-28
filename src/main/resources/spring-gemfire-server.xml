@@ -10,11 +10,15 @@
 		http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd">
 		
     <gfe:cache properties-ref="props" />
-               
+       
+    <util:properties id="props" location="file:${props-file}"/>        
+    <!--    
     <util:properties id="props">
     	<prop key="locators">${locators:localhost[10334]}</prop>
     	<prop key="name">${gemfire-name:gemfire-server}</prop>
+    	<prop key="license-data-management">${license}</prop>
     </util:properties>
+    -->
     
     <bean id="functions" class="com.pivotal.cloudfoundry.service.broker.gemfire.GemfireFunctions"/>
     
