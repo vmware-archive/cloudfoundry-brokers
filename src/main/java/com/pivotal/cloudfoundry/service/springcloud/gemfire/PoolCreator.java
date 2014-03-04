@@ -1,5 +1,7 @@
 package com.pivotal.cloudfoundry.service.springcloud.gemfire;
 
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.service.AbstractServiceConnectorCreator;
@@ -7,8 +9,8 @@ import org.springframework.cloud.service.ServiceConnectorConfig;
 import org.springframework.cloud.service.ServiceConnectorCreationException;
 
 import com.gemstone.gemfire.cache.client.Pool;
-import com.gemstone.gemfire.cache.client.PoolFactory;
 import com.gemstone.gemfire.cache.client.PoolManager;
+import com.gemstone.gemfire.distributed.DistributedSystem;
 
 public class PoolCreator extends	AbstractServiceConnectorCreator<Pool, GemfireServiceInfo> {
 	
@@ -23,15 +25,18 @@ public class PoolCreator extends	AbstractServiceConnectorCreator<Pool, GemfireSe
 
 	@Override
 	public Pool create(GemfireServiceInfo si, ServiceConnectorConfig scc) {
-		LOG.info("Creating pool factory bean...");
+		LOG.info("Creating pool bean...");
 		
 		try {
 			if(LOG.isDebugEnabled()) LOG.info("locator address -- " + si.getHost() + "[" + si.getPort() + "]");
-				PoolFactory poolFactory = PoolManager.createFactory();
+//				Properties props = new Properties();
+//				props.setProperty("mcast-port", "0");
+//				props.setProperty("locators", si.getHost() + "[" + si.getPort() + "]");
+//				//props.setProperty("locators", "");
+//				DistributedSystem.connect(props);
+			
 				//TODO: We need to update this to support multiple locators
-				poolFactory.addLocator(si.getHost(), si.getPort());
-				PoolManager.createFactory().create("myPool");
-				return poolFactory.create("gemfirePool");
+				return PoolManager.createFactory().addLocator(si.getHost(), si.getPort()).create("gemfirePool");
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw new ServiceConnectorCreationException(e);
