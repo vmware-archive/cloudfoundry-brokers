@@ -1,7 +1,6 @@
 package com.pivotal.cloudfoundry.service.broker.gemfire;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
@@ -65,7 +63,13 @@ public class GemfireServiceBroker implements IServiceBroker {
     	//TODO: somehow externalize these.. probably stick into Gemfire
     	//Specific Plans
     	IPlan plan = new CloudFoundryPlan("4618z98-ab16-3t22-ba6e-1f258d3addz2","1GB-replicated","Multi-tenant Gemfire service; 1GB data storage replicated");
-    	plan.addMetadata("cost", "free");
+    	//plan.addMetadata("cost", "free");
+    	plan.addMetadata("costs", Arrays.asList(new HashMap<String, Object>()  {
+    			{ put("amount", new HashMap<String, Object>() {{ put("usd", new Integer(0)); }}); }
+    			{ put("unit", "MONTH"); }}
+    		));
+    	plan.addMetadata("displayName", "Pivotal Gemfire");
+    	plan.addMetadata("bullets", Arrays.asList("Shared Gemfire data service","Gemfire v7.0.1"));
     	service.addPlan(plan);
     	
     	model.addService(service);
@@ -80,7 +84,7 @@ public class GemfireServiceBroker implements IServiceBroker {
     	
     	ServiceInstanceModel model = ServiceInstanceModel.build(data);
     	
-    	_functionTemplate.execute("provision", id);
+    	//_functionTemplate.execute("provision", id);
     	LOG.info("Created gemfire region: " + id);
     	
     	//place info about this region in admin info
