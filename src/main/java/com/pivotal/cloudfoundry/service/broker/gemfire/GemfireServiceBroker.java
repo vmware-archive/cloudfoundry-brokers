@@ -90,7 +90,7 @@ public class GemfireServiceBroker implements IServiceBroker {
     	//place info about this region in admin info
     	_provisionTemplate.put(id, model);
     	
-    	return new HashMap<String, String>() {{ put("dashboard_url", "http://localhost:8080/pulse"); }};
+    	return new HashMap<String, String>() {{ put("dashboard_url", "http://" + _locatorHost + ":8080/pulse"); }};
     }
     
 	@ResponseBody
