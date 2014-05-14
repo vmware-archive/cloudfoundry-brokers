@@ -16,25 +16,15 @@ spring.profiles.active=gemfire-server:  required to activate the appropriate spr
 <pre>spring.profiles.active=gemfire-service-broker</pre>
 </li>
 <li>Register service broker with CloudFoundry using cf add-service-broker.  Make sure your URL/IP for your broker is resolvable by your CloudFoundry env.<br>
-Sample output: <br>
-<pre>$ cf add-service-broker gemfire
-
-URL> http://$BROKER_IP:$BROKER_PORT<br>
-Username> admin
-Password> admin
-
-Adding service broker gemfire... OK
-
-$ cf service-brokers
-
-Getting service brokers... OK
-
-Name      URL                  
-gemfire   http://10.0.0.13:8080</pre>
+example: <br>
+<pre>cf create-service-broker gemfire admin admin http://10.244.0.102:8888</pre>
 </li>
 <li>To flip flag on a service plan to be public:<br>
 note: this is required.  Without it you will not be able to create an instance of this service.  Also, make sure you've logged in using <code>cf login</code> recently as your auth token is only cached for 10 minutes
-<pre>cf curl PUT /v2/service_plans/$GUID -b '{"public":true}'</pre>
+<pre>
+GUID=$(cf curl /v2/service_plans -X 'GET' | grep '"guid":' | sed 's/\"guid": //' | tr -d ' ",')
+cf curl /v2/service_plans/$GUID -X 'PUT' -d '{"public":true}'
+</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans API invocation
 <br><br>
 Helpful CF Web service calls:<br>
@@ -42,7 +32,7 @@ To get list of service plans:
 <pre>cf curl GET /v2/service_plans
 
 Example:
-$ cf curl GET /v2/service_plans
+$ cf curl /v2/service_plans -X 'GET'
 
 {
   "total_results": 1,
@@ -74,23 +64,15 @@ $ cf curl GET /v2/service_plans
 </pre>
 
 To get the instances provisioned by this service:
-<pre>cf curl GET /v2/service_plans/$GUID/service_instances</pre>
+<pre>
+GUID=$(cf curl /v2/service_plans -X 'GET' | grep '"guid":' | sed 's/\"guid": //' | tr -d ' ",')
+cf curl /v2/service_plans/$GUID -X 'GET'
+</pre>
 ** GUID = the GUID in the metadata section returned from /v2/service_plans
 </li>
 <li>Create a service instance of Gemfire using <code>cf create-service</code>
 <pre>
-$ cf create-service
-
-1: pivotal-gemfire , via 
-2: user-provided , via 
-What kind?> 1
-
-Name?> pivotal-gemfire-f076a
-
-1: 1GB-replicated: Multi-tenant Gemfire service; 1GB data storage replicated
-Which plan?> 1
-
-Creating service pivotal-gemfire-f076a... OK
+cf create-service pivotal-gemfire 1GB-replicated pivotal-gemfire-1
 </pre>
 </li>
 </ol>
