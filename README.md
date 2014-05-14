@@ -81,16 +81,16 @@ To get the instances provisioned by this service:
 <pre>
 $ cf create-service
 
-1: p-gemfire , via 
+1: pivotal-gemfire , via 
 2: user-provided , via 
 What kind?> 1
 
-Name?> p-gemfire-f076a
+Name?> pivotal-gemfire-f076a
 
 1: 1GB-replicated: Multi-tenant Gemfire service; 1GB data storage replicated
 Which plan?> 1
 
-Creating service p-gemfire-f076a... OK
+Creating service pivotal-gemfire-f076a... OK
 </pre>
 </li>
 </ol>

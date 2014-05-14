@@ -119,6 +119,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>${artifactId}</finalName>
 		<plugins>
 			<!-- Ignore/Execute plugin execution -->
 			<plugin>
@@ -152,6 +153,7 @@
 					<descriptors>
 						<descriptor>src/main/assembly/bin.xml</descriptor>
 					</descriptors>
+					<finalName>${project.artifactId}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
