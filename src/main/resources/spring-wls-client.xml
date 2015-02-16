@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd">
 	
 	<util:properties id="props">
-    	<prop key="log-level">config</prop>
+    	<prop key="log-level">finest</prop>
     </util:properties>
 	
 	<!-- This is needed because Spring boot isn't auto-wiring @Value properly for some reason... -->
@@ -20,7 +20,12 @@
 	<bean id="adminPort" class="java.lang.String">
   		<constructor-arg type="java.lang.String" value="${admin.port}"/>
 	</bean>
-	
+	<bean id="adminUsername" class="java.lang.String">
+  		<constructor-arg type="java.lang.String" value="${admin.username}"/>
+	</bean>
+	<bean id="adminPassword" class="java.lang.String">
+  		<constructor-arg type="java.lang.String" value="${admin.password}"/>
+	</bean>
 	<bean id="weblogicJmsFunctions" class="com.pivotal.cloudfoundry.service.broker.wlsjms.WlsJmsFunctions"></bean>
 
 </beans>

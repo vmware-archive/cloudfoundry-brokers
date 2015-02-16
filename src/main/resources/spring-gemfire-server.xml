@@ -14,7 +14,7 @@
     <util:properties id="props" location="file:${props-file}"/>        
     <!--    
     <util:properties id="props">
-    	<prop key="locators">${locators:localhost[10334]}</prop>
+    	<prop key="locators">${locator:hdm[10334]}</prop>
     	<prop key="name">${gemfire-name:gemfire-server}</prop>
     	<prop key="license-data-management">${license}</prop>
     </util:properties>

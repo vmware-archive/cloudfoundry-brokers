@@ -15,7 +15,14 @@ import javax.naming.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import weblogic.jms.common.JMSException;
+import weblogic.jms.extensions.JMSModuleHelper;
+import weblogic.management.MBeanHome;
+import weblogic.management.configuration.DomainMBean;
+import weblogic.management.configuration.JMSSystemResourceMBean;
+import weblogic.management.configuration.ServerMBean;
 import weblogic.management.mbeanservers.domainruntime.DomainRuntimeServiceMBean;
+import weblogic.management.mbeanservers.edit.EditServiceMBean;
 import weblogic.management.runtime.DeploymentManagerMBean;
 
 public class WlsJmsFunctions {
@@ -24,9 +31,18 @@ public class WlsJmsFunctions {
 	MBeanServerConnection connection;
 	// Deployment Manager JMX proxy
 	DeploymentManagerMBean deploymentManager;
+	DomainMBean domainMBean;
 
 	private static Logger LOG = LoggerFactory.getLogger(WlsJmsFunctions.class);
-	
+	@Resource(name = "adminHost")
+	private String _adminHost;
+	@Resource(name = "adminPort")
+	private String _adminPort;
+	@Resource(name = "adminUsername")
+	private String _adminUsername;
+	@Resource(name = "adminPassword")
+	private String _adminPassword;
+
 	public void createJmsModule(String modname) {
 
 	}
@@ -43,10 +59,11 @@ public class WlsJmsFunctions {
 
 		// Get DeploymentManager JMX proxy.
 		// For more information, see Oracle WebLogic Server MBean Reference.
-		DomainRuntimeServiceMBean svcBean = (DomainRuntimeServiceMBean) weblogic.management.jmx.MBeanServerInvocationHandler
+		EditServiceMBean svcBean = (EditServiceMBean) weblogic.management.jmx.MBeanServerInvocationHandler
 				.newProxyInstance(connection, new ObjectName(
-						DomainRuntimeServiceMBean.OBJECT_NAME));
-		deploymentManager = svcBean.getDomainRuntime().getDeploymentManager();
+						EditServiceMBean.OBJECT_NAME));
+		domainMBean = svcBean.getDomainConfiguration();
+		//deploymentManager = svcBean.getDomainRuntime().getDeploymentManager();
 
 		// Add a JMX notification listener that outputs the JMX notifications
 		// generated during deployment operations.
@@ -64,8 +81,8 @@ public class WlsJmsFunctions {
 
 		public void handleNotification(Notification notification,
 				Object handback) {
-			LOG.info(" Notification from DeploymentManagerMBean " + 
-			"  notification type:  " + notification.getType());
+			LOG.info(" Notification from DeploymentManagerMBean "
+					+ "  notification type:  " + notification.getType());
 			String userData = (String) notification.getUserData();
 			LOG.info("  userData:  " + userData);
 		}
@@ -75,17 +92,69 @@ public class WlsJmsFunctions {
 	private MBeanServerConnection getDomainRuntimeJMXConnection()
 			throws Exception {
 
-		JMXServiceURL serviceURL = new JMXServiceURL("t3", "localhost", 7001,
+		JMXServiceURL serviceURL = new JMXServiceURL("t3", _adminHost,
+				Integer.parseInt(_adminPort),
 				"/jndi/weblogic.management.mbeanservers.domainruntime");
 
-		Hashtable h = new Hashtable();
-		h.put(Context.SECURITY_PRINCIPAL, "admin");
-		h.put(Context.SECURITY_CREDENTIALS, "password");
+		Hashtable<String,String> h = new Hashtable();
+		h.put(Context.SECURITY_PRINCIPAL, _adminUsername);
+		h.put(Context.SECURITY_CREDENTIALS, _adminPassword);
 		h.put(JMXConnectorFactory.PROTOCOL_PROVIDER_PACKAGES,
 				"weblogic.management.remote");
 
 		JMXConnector connector = JMXConnectorFactory.connect(serviceURL, h);
 		MBeanServerConnection connection = connector.getMBeanServerConnection();
 		return connection;
+	}
+
+	private void createJMSUsingJMSModuleHelper(String queueName,
+			String resourceName) {
+		LOG.info("\n\n.... Configure JMS Resource via Service Broker ....\n\n");
+
+		try {
+
+			String domainMBeanName = domainMBean.getName();
+			ServerMBean[] servers = domainMBean.getServers();
+
+			String jmsServerName = "examplesJMSServer";
+
+			//
+			// create a JMSSystemResource "CapiTopic-jms"
+			//
+
+			Context domain;
+			JMSModuleHelper.createQueue(domainMBean, resourceName, jmsServerName,
+					queueName, "pcf."+queueName);
+			JMSModuleHelper.createJMSSystemResource(domainMBean, resourceName,
+					servers[0].getName());
+//			JMSSystemResourceMBean jmsSR = JMSModuleHelper
+//					.findJMSSystemResource(domainMBean, resourceName);
+			// JMSBean jmsBean = jmsSR.getJMSResource();
+			System.out.println("Created JMSSystemResource " + resourceName);
+
+			//
+			// create a JMSConnectionFactory "CConFac"
+			//
+			String factoryName = "myConnectionFactory";
+			String jndiName = "myConnectionFactory";
+			JMSModuleHelper.createConnectionFactory(domainMBean, resourceName,
+					factoryName, jndiName, servers[0].getName());
+			// JMSConnectionFactoryBean factory =
+			// jmsBean.lookupConnectionFactory(factoryName);
+			// System.out.println("Created Factory " + factory.getName());
+
+			//
+			// create a topic "CTopic"
+			//
+			JMSModuleHelper.createQueue(domainMBean, resourceName, jmsServerName,
+					queueName, queueName);
+
+			// TopicBean topic = jmsBean.lookupTopic(topicName);
+			System.out.println("Created Queue " + queueName);
+		} catch (Exception e) {
+			System.out.println("Example configuration failed :"
+					+ e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }
