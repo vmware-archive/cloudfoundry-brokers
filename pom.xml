@@ -57,6 +57,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
@@ -117,43 +122,132 @@
 			<version>1.3.3.RELEASE</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		
+		<!-- Weblogic Jar Dependencies for both JMX and WLST embedded From $WL_HOME/server/lib 
+			mvn install:install-file -Dfile=wls-api.jar -DgroupId=weblogic -DartifactId=api 
+			-Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true mvn install:install-file 
+			-Dfile=weblogic-classes.jar -DgroupId=weblogic -DartifactId=classes -Dversion=12.1.3 
+			-Dpackaging=jar -DgeneratePOM=true mvn install:install-file -Dfile=wlthint3client.jar 
+			-DgroupId=weblogic -DartifactId=client -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			From $WL_HOME/modules mvn install:install-file -Dfile=com.oracle.core.weblogic.msgcat_3.0.0.0.jar 
+			-DgroupId=weblogic -DartifactId=wlstmsg -Dversion=12.1.3 -Dpackaging=jar 
+			-DgeneratePOM=true mvn install:install-file -Dfile=com.bea.core.utils_2.3.0.0.jar 
+			-DgroupId=weblogic -DartifactId=utils -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			mvn install:install-file -Dfile=com.bea.core.management.jmx_4.0.0.0.jar -DgroupId=weblogic 
+			-DartifactId=jmx -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true mvn 
+			install:install-file -Dfile=com.bea.core.nodemanager.plugin_2.2.0.0.jar -DgroupId=weblogic 
+			-DartifactId=nm -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true mvn install:install-file 
+			-Dfile=com.bea.core.diagnostics.core_4.1.0.0.jar -DgroupId=weblogic -DartifactId=diagnostics 
+			-Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true mvn install:install-file 
+			-Dfile=com.oracle.core.nodemanager.client_2.0.0.0.jar -DgroupId=weblogic 
+			-DartifactId=nm-client -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			From $MW_HOME/oracle_common/modules mvn install:install-file -Dfile=com.oracle.cie.config-wls_8.1.0.0.jar 
+			-DgroupId=weblogic -DartifactId=cie -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			mvn install:install-file -Dfile=com.oracle.cie.config_8.1.0.0.jar -DgroupId=weblogic 
+			-DartifactId=cie-config -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			mvn install:install-file -Dfile=com.oracle.cie.config-owsm_8.1.0.0.jar -DgroupId=weblogic 
+			-DartifactId=cie-owsm -Dversion=12.1.3 -Dpackaging=jar -DgeneratePOM=true 
+			mvn install:install-file -Dfile=com.oracle.cie.config-security_8.1.0.0.jar 
+			-DgroupId=weblogic -DartifactId=cie-security -Dversion=12.1.3 -Dpackaging=jar 
+			-DgeneratePOM=true -->
+		<!-- <dependency> <groupId>weblogic</groupId> <artifactId>classes</artifactId> 
+			<version>12.1.3</version> </dependency> -->
+		<dependency>
 			<groupId>weblogic</groupId>
-			<artifactId>classes</artifactId>
+			<artifactId>fullclient</artifactId>
 			<version>12.1.3</version>
 		</dependency>
 		<dependency>
+			<groupId>jython</groupId>
+			<artifactId>jython</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<!-- <dependency>
 			<groupId>weblogic</groupId>
 			<artifactId>jmx</artifactId>
 			<version>12.1.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jms</artifactId>
-			<version>${org.springframework-version}</version>
-		</dependency>
+		</dependency> -->
+		<!-- <dependency> <groupId>org.springframework</groupId> <artifactId>spring-jms</artifactId> 
+			<version>${org.springframework-version}</version> </dependency> -->
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- <dependency> <groupId>weblogic</groupId> <artifactId>api</artifactId> 
+			<version>12.1.3</version> </dependency> -->
+		
+		<!-- <dependency> <groupId>weblogic</groupId> <artifactId>wlstmsg</artifactId> 
+			<version>12.1.3</version> </dependency> <dependency> <groupId>weblogic</groupId> 
+			<artifactId>diagnostics</artifactId> <version>12.1.3</version> </dependency> -->
+		<!-- <dependency> <groupId>weblogic</groupId> <artifactId>utils</artifactId> 
+			<version>12.1.3</version> </dependency> <dependency> <groupId>weblogic</groupId> 
+			<artifactId>nm</artifactId> <version>12.1.3</version> </dependency> <dependency> 
+			<groupId>weblogic</groupId> <artifactId>nm-client</artifactId> <version>12.1.3</version> 
+			</dependency> -->
 		<dependency>
 			<groupId>weblogic</groupId>
-			<artifactId>api</artifactId>
+			<artifactId>cie</artifactId>
 			<version>12.1.3</version>
 		</dependency>
 		<dependency>
 			<groupId>weblogic</groupId>
-			<artifactId>client</artifactId>
+			<artifactId>cie-config</artifactId>
 			<version>12.1.3</version>
-			<scope>system</scope>
-			<systemPath>/Users/michaelwright/Downloads/wls12130/wlserver/server/lib/wlthint3client.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>5.1.3.Final</version>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-comdev</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>service-table</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-dependency</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-wlschema</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-owsm</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-security</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-wizard</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>cie-encryption</artifactId>
+			<version>12.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>wlst-online</artifactId>
+			<version>12.1.3</version>
 		</dependency>
 	</dependencies>
 

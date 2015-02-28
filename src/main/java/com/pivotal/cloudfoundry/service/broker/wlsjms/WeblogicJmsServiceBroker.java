@@ -11,11 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -27,6 +31,7 @@ import com.pivotal.cloudfoundry.service.broker.ServiceBindResponseModel;
 import com.pivotal.cloudfoundry.service.broker.ServiceInstanceModel;
 import com.pivotal.cloudfoundry.service.broker.ServiceProvisionModel;
 
+@Profile({"wlsjms-service-broker"})
 @Controller()
 @RequestMapping("/v2")
 @Configuration
@@ -67,14 +72,19 @@ public class WeblogicJmsServiceBroker implements IServiceBroker {
 	@ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value="/service_instances/{id}", method=RequestMethod.PUT)
-	public Map<String, String> provisionInstance(String id, String data) {
+	public Map<String, String> provisionInstance(@PathVariable String id, @RequestBody String data) {
+		if (id==null) id="dummy";
 		LOG.info("Provisioning JMS service instance [id:" + id + "]");
+    	LOG.debug(data);
     	
     	ServiceInstanceModel model = ServiceInstanceModel.build(data);
     	
-    	//_functionTemplate.execute("provision", id);
-    	
-    	LOG.info("Created jms server: " + id);
+    	try {
+			_functionTemplate.createJmsQueue(model);
+			LOG.info("Created jms server: " + id);
+		} catch (Exception e) {
+			LOG.error("error creating weblogic queue",e);
+		}
     	
     	//place info about this region in admin info
     	//_provisionTemplate.put(id, model);
@@ -82,25 +92,58 @@ public class WeblogicJmsServiceBroker implements IServiceBroker {
     	return new HashMap<String, String>() {{ put("dashboard_url", "http://" + _adminHost + ":" + _adminPort + "/console"); }};
 	}
 
-	@Override
-	public ResponseEntity<String> removeInstance(String id, String service_id,
-			String plan_id) {
-		// TODO Auto-generated method stub
-		return null;
+	@ResponseBody
+    @RequestMapping(value="/service_instances/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<String> removeInstance(@PathVariable String id, @RequestParam String service_id, @RequestParam String plan_id) {
+		ServiceInstanceModel model = new ServiceInstanceModel();
+		model.setApp_guid(id);
+		model.setService_id(service_id);
+		model.setPlan_id(plan_id);
+    	
+    	try {
+			_functionTemplate.removeJmsQueue(model);
+			LOG.info("Removed jms server: " + id);
+		} catch (Exception e) {
+			LOG.error("error removing weblogic queue",e);
+		}
+    	return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
 	}
 
-	@Override
-	public ServiceBindResponseModel createBinding(String instance_id,
-			String id, String data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	@ResponseBody
+    @RequestMapping(value="/service_instances/{instance_id}/service_bindings/{id}", method=RequestMethod.PUT)
+    public ServiceBindResponseModel createBinding(@PathVariable String instance_id, @PathVariable String id,  @RequestBody String data) {
+    	LOG.info("Creating Gemfire service binding [instance_id: " + instance_id + ", id:" + id + "]");
+    	
+    	ServiceInstanceModel model = ServiceInstanceModel.build(data);
+    	
+    	ServiceBindResponseModel resp = new ServiceBindResponseModel();
+    	
+    	resp.addCredential("wls-t3", "t3://"+_adminHost+":"+_adminPort);
+    	resp.addCredential("connectionFactory", id+"-cf");
+    	return resp;
+    }
 
-	@Override
-	public ResponseEntity<String> removeBinding(String instance_id, String id,
-			String service_id, String plan_id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	@ResponseBody
+    @RequestMapping(value="/service_instances/{instance_id}/service_bindings/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<String> removeBinding(@PathVariable String instance_id, @PathVariable String id,  
+    		@RequestParam String service_id, @RequestParam String plan_id) {
+    	LOG.info("Deleting Gemfire service binding [instance_id: " + instance_id + ", id:" + id + "]");
+    	if(LOG.isDebugEnabled()) {
+    		LOG.debug("service_id: " + service_id);
+    		LOG.debug("plan_id: " + plan_id);
+    	}
+
+    	
+    	//TODO: What does unbinding actually mean??
+    	
+    	//Eventually this will have to have logic to determine if the service binding still exists
+    	if(!"testing".equals(id)) {
+    		return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
+    	} else {
+    		//return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.NOT_FOUND);
+    		//For now this is OK... need for testing
+    		return new ResponseEntity<String>(EMPTY_JSON, HttpStatus.OK);
+    	}
+    }
 
 }
